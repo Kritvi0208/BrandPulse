@@ -1,0 +1,19 @@
+# Virtual Environment & Editor
+.venv/
+.vscode/
+__pycache__/
+*.pyc
+
+# Project Archive & Cache
+archive/
+cache/
+scratch/
+.ipynb_checkpoints/
+wandb/
+
+# Data & Models
+models/
+*.pkl
+*.pickle
+headline-output.csv
+sample_data/
