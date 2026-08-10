@@ -28,7 +28,11 @@ from deep_translator import GoogleTranslator
 import time
 import random 
 from tqdm.auto import tqdm
-import detect_script
+try:
+    from src import detect_script
+except ImportError:
+    import detect_script
+
 import demoji
 try:
     if demoji.last_downloaded_timestamp() is None:
@@ -37,7 +41,10 @@ except Exception:
     pass
 import re
 import syntok.segmenter as segmenter
-import brands
+try:
+    from src import brands
+except ImportError:
+    import brands
 
 
 def detect_lang(texts, truncate=True):

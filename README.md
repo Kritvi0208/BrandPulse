@@ -1,10 +1,25 @@
-# BrandPulse | Multilingual Brand Sentiment & Headline Intelligence
+# BrandPulse | Tech News & Sentiment Analysis
 
 <p align="center">
   <img width="100%" alt="BrandPulse Salient Features" src="media/assets/salient_features.png">
 </p>
 
-**BrandPulse** is an end-to-end NLP and machine learning pipeline built to automate brand intelligence for consumer technology. It ingests raw multilingual news articles and social media tweets, filters out non-relevant tech noise using high-speed binary classification, normalizes Hindi and Hinglish text into English, extracts target brand entities, performs token-level sentiment analysis using Transformer models, and generates concise news headlines using abstractive sequence-to-sequence neural synthesis.
+**BrandPulse** is an end-to-end NLP and machine learning web application built to automate brand intelligence for consumer technology. It ingests raw multilingual news articles and social media tweets, filters out non-relevant tech noise using high-speed binary classification, normalizes Hindi and Hinglish text into English, extracts target brand entities, performs token-level sentiment analysis using Transformer models, and generates concise news headlines using abstractive sequence-to-sequence neural synthesis.
+
+---
+
+## 💻 Streamlit Web Application
+
+BrandPulse features a modern **Streamlit Web Application (`app.py`)** providing both real-time text analysis and batch file analytics.
+
+### Launch Command:
+```bash
+streamlit run app.py
+```
+
+<p align="center">
+  <img width="100%" alt="BrandPulse Streamlit Web Application Interface" src="media/assets/flowchart.png">
+</p>
 
 ---
 
@@ -25,20 +40,22 @@ Consumer technology brands receive thousands of news articles and tweets every d
 | Layer | Technology |
 | :--- | :--- |
 | **Language** | Python 3.10+ |
+| **Frontend Framework** | Streamlit 1.25+, Plotly |
 | **Core ML & NLP** | scikit-learn (TF-IDF, Logistic Regression, Naive Bayes), spaCy 3.x, langdetect |
 | **Neural Transformers** | Hugging Face Transformers, PyTorch, T5 (`t5-base`), mBERT (`ganeshkharad/gk-hinglish-sentiment`) |
 | **Translation & Text Prep** | `deep-translator` (Google Translate API), demoji, syntok |
 | **Data Processing** | pandas 2.0+, numpy, openpyxl |
-| **Interface & Notebooks** | Jupyter Notebooks (`main.ipynb`), CLI Scripts (`download_data.py`, `download_models.py`) |
+| **Interface & Notebooks** | Streamlit App (`app.py`), Jupyter Notebooks (`main.ipynb`), CLI Scripts (`download_data.py`, `download_models.py`) |
 
 ---
 
 ## Key Features
 
+- **Single Text Real-Time Analysis**: Paste any article or tweet to view mobile relevance, language detection, brand badges, brand-level sentiment scores, and generated T5 headlines.
+- **Batch Dataset Analysis**: Drag and drop any `.csv` or `.xlsx` file to process datasets in bulk with interactive Plotly donut & bar charts.
 - **High-Speed Mobile-Tech Filtering**: Utilizes lightweight TF-IDF vectorization and classification to remove non-mobile tech articles and tweets, saving computational overhead.
 - **Multilingual Translation & Normalization**: Automatically detects script/language and translates Devanagari Hindi and Hinglish into English while normalizing brand names (e.g., `सैमसंग` → `Samsung`).
 - **100+ Brand Entity Extraction**: Recognizes over 100 global smartphone and technology brands using high-performance regular expressions and hashtag tokenization.
-- **Contextual Sentence Segmentation**: Splits long articles into brand-centric context windows so sentiment is tied directly to the relevant brand mention.
 - **Transformer-Powered Sentiment Analysis**: Employs fine-tuned multilingual BERT (`mBERT`) token classification to assign exact **Positive**, **Negative**, or **Neutral** sentiment flags.
 - **Abstractive Headline Synthesis**: Employs Google's **T5** sequence-to-sequence Transformer model to generate concise English news headlines.
 
@@ -65,13 +82,13 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["Raw Article / Tweet"] -->|1. Clean & Detect Language| B["spaCy Pipeline"]
+    A["User Input (Web App / File Upload)"] -->|1. Clean & Detect Language| B["spaCy Pipeline"]
     B -->|2. Compute Vector Representation| C["TF-IDF Vectorizer"]
     C -->|3. Evaluate Relevance Flag| D["Binary Classifier"]
     D -->|4. Translate to English| E["deep-translator Engine"]
     E -->|5. Extract Brand Entities| F["Brand Regex Catalog"]
     F -->|6. Sentence Context Windows| G["Transformer Models (mBERT & T5)"]
-    G -->|7. Export Intelligence| H["Final CSV Reports"]
+    G -->|7. Display Live Dashboard| H["Streamlit Web UI / Download CSV"]
 ```
 
 ---
@@ -80,6 +97,12 @@ flowchart LR
 
 ```mermaid
 flowchart TD
+    subgraph Frontend_Layer
+        APP["Streamlit Web App (app.py)"]
+        UI1["Text Analysis Tab"]
+        UI2["Batch Analysis Tab"]
+    end
+
     subgraph Input_Layer
         D1["article_dev.xlsx (4,000 Articles)"]
         D2["tweet_dev.xlsx (4,000 Tweets)"]
@@ -97,20 +120,16 @@ flowchart TD
         HEAD["T5 Headline Generation Model"]
     end
     
-    subgraph Output_Layer
-        O1["headline-output.csv"]
-        O2["sentiment-output.csv"]
-    end
-    
-    D1 --> PRE
-    D2 --> PRE
+    APP --> UI1
+    APP --> UI2
+    UI1 --> PRE
+    UI2 --> D1
+    UI2 --> D2
     PRE --> BC
     BC --> TR
     TR --> BR
     BR --> SENT
     BR --> HEAD
-    SENT --> O2
-    HEAD --> O1
 ```
 
 ---
@@ -161,6 +180,7 @@ flowchart TD
 
 ```plaintext
 BrandPulse/
+├── app.py                 # Master Streamlit Web Application
 ├── DATA_SETUP.md          # Dataset guide & directory details
 ├── MODEL_SETUP.md         # Model architecture & weight configuration guide
 ├── README.md              # Main project documentation
@@ -201,7 +221,7 @@ BrandPulse/
 ### 1. Clone & Set Up Virtual Environment
 
 ```bash
-git clone https://github.com/your-username/BrandPulse.git
+git clone https://github.com/Kritvi0208/BrandPulse.git
 cd BrandPulse
 
 # Create virtual environment
@@ -228,15 +248,13 @@ python download_data.py
 python download_models.py
 ```
 
-### 3. Run the Automated Test Suite
+### 3. Launch the Streamlit Web Application
 
 ```bash
-python tests/smoke_test.py
+streamlit run app.py
 ```
 
-### 4. Execute the Main Notebook
-
-Open **`main.ipynb`** in VS Code or Jupyter Lab, select `.venv` as your kernel, and run all cells.
+Then open `http://localhost:8501` in your browser.
 
 ---
 
@@ -248,12 +266,3 @@ Open **`main.ipynb`** in VS Code or Jupyter Lab, select `.venv` as your kernel, 
 | *“Just bought the new Samsung Galaxy! The display quality is incredible. #Samsung #Galaxy”* | **1 (Relevant)** | **Samsung** | **Positive** | *N/A (Tweet)* |
 | *“Not really impressed with the new Xiaomi phone design, feels cheap. #Xiaomi”* | **1 (Relevant)** | **Xiaomi** | **Negative** | *N/A (Tweet)* |
 | *“Global stock markets fluctuated today following central bank interest rate announcements.”* | **0 (Noise)** | **None** | **N/A** | *N/A (Filtered Out)* |
-
----
-
-## Future Enhancements
-
-- **Real-Time Stream Processing**: Integrate Apache Kafka / Twitter API stream listener for live social media tracking.
-- **Interactive Dashboard**: Build a React + FastAPI dashboard with real-time sentiment trend charts and word clouds.
-- **LLM Fine-Tuning**: Fine-tune Llama 3 / Mistral 7B models for domain-specific consumer-tech reason extraction.
-- **Dockerization**: Package the complete pipeline into a multi-container Docker application for cloud deployment on AWS / GCP.
