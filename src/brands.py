@@ -167,6 +167,48 @@ brands = {'AT&T',
 #  'शाओमी'
 }
 
+SMARTPHONE_BRANDS = {
+    'Apple',
+    'Samsung',
+    'Google',
+    'OnePlus',
+    'Xiaomi',
+    'Redmi',
+    'Poco',
+    'Realme',
+    'Vivo',
+    'Oppo',
+    'Motorola',
+    'Moto',
+    'Nothing',
+    'CMF',
+    'iQOO',
+    'Honor',
+    'Huawei',
+    'Nokia',
+    'Sony',
+    'Asus',
+    'ROG',
+    'Tecno',
+    'Infinix',
+    'Itel',
+    'Lava',
+    'Nubia',
+    'ZTE',
+    'TCL',
+    'Lenovo',
+    'Meizu',
+    'HTC',
+    'BlackBerry',
+    'Alcatel',
+    'Fairphone',
+    'Doogee',
+    'Ulefone',
+    'UMIDIGI',
+    'Unihertz',
+    'Black Shark'
+}
+
 replace_dict = {'एसर':'Acer',
  'एसस':'Asus',
  'बेनक्यू':'BenQ',
@@ -221,15 +263,27 @@ replace_dict = {'एसर':'Acer',
 }
 pattern = re.compile(r'(?<!\w)(' + '|'.join(re.escape(key) for key in replace_dict.keys()) + r')(?!\w)')
  
-brand_list_sp = list(r'\b'+w.lower()+r'\b' for w  in brands)
-brand_list_sp.append(r'\b'+'mi'+r'\b')
-# brand_list_sp += list(' '+w.lower()+'.' for w  in brands)
-# brand_list_sp += list(w.lower()+' ' for w  in brands)
-brand_list = list(w.lower() for w  in brands)    
+sorted_smartphone_brands = sorted(SMARTPHONE_BRANDS, key=len, reverse=True)
+
+# Regex vocabulary used for brand extraction
+brand_list_sp = [
+    r'\b' + re.escape(w.lower()) + r'\b'
+    for w in sorted_smartphone_brands
+]
+
+# Keep "mi" as a supported Xiaomi shorthand
+brand_list_sp.append(r'\bmi\b')
+
+brand_list = [
+    w.lower()
+    for w in sorted_smartphone_brands
+]
+
 search_exp_sp = '|'.join(brand_list_sp)
-search_exp = '|'.join(brand_list)
-
-
+search_exp = '|'.join(
+    re.escape(w)
+    for w in brand_list
+)
 
 def _find_in_hashtags(hashtags):
     matches = []
@@ -243,26 +297,115 @@ def _get_unique_brands(brandlist):
     return list(s)
 
 def _get_brands(text):
-    '''
-    A function that returns the occurences of brands in a single string 
-    text: string
-    '''
-    hashtags = re.findall(r'\B#\w*[a-zA-Z]+\w*', text)
+    """
+    Detect smartphone brands mentioned in a text.
+    Uses exact word-boundary matching to reduce false positives.
+    """
+    hashtags = re.findall(
+        r'\B#\w*[a-zA-Z]+\w*',
+        text
+    )
+
     brands_hashtags = _find_in_hashtags(hashtags)
     brands_text = re.findall(search_exp_sp, text, re.IGNORECASE)
     brandlist = brands_hashtags + brands_text
     brandlist = _get_unique_brands(brandlist)
     return brandlist
 
+# def get_brands(texts, verbose=True):
+#     """
+#     Detect smartphone brands from each text.
+#     Applies small context rules for ambiguous brand names.
+#     """
+#     brandlists = []
+
+#     iterator = tqdm(texts) if verbose else texts
+
+#     for text in iterator:
+#         brandlist = _get_brands(text)
+
+#         # GOOGLE: Keep Google only when it refers to Google hardware.
+#         if 'google' in brandlist:
+#             google_phone_context = re.search(
+#             r'\bgoogle\s+(pixel|phone|smartphone|mobile|device)\b',
+#             text,
+#             re.IGNORECASE
+#         )
+
+#             pixel_by_google = re.search(
+#                 r'\bpixel\b.*\bgoogle\b|\bgoogle\b.*\bpixel\b',
+#                 text,
+#                 re.IGNORECASE
+#             )
+
+#             if google_hardware is None and pixel_by_google is None:
+#                 brandlist = [b for b in brandlist if b != 'google']
+
+#         # NOTHING: Avoid treating generic "nothing" as a brand.
+#         if 'nothing' in brandlist:
+#             nothing_hardware = re.search(
+#                 r'\bnothing\s+(phone|smartphone|mobile|device|cmf|ear)\b',
+#                 text,
+#                 re.IGNORECASE
+#             )
+
+#             if nothing_hardware is None:
+#                 brandlist = [b for b in brandlist if b != 'nothing']
+
+#         brandlist = _get_unique_brands(brandlist)
+#         brandlists.append(brandlist)
+
+#     return brandlists
+
 def get_brands(texts, verbose=True):
-    '''
-    A function that takes a list of strings and returns a list of brands in each string
-    texts: list of strings
-    '''
-    brandlists = [] 
-    for text in (tqdm(texts) if verbose else texts):
+    """
+    Detect smartphone brands from each text.
+    Applies context rules for ambiguous brand names.
+    """
+    brandlists = []
+
+    iterator = tqdm(texts) if verbose else texts
+
+    for text in iterator:
         brandlist = _get_brands(text)
+
+        # GOOGLE → only keep when referring to Google hardware
+        if 'google' in brandlist:
+            google_phone_context = re.search(
+                r'\bgoogle\s+(pixel|phone|smartphone|mobile|device)\b',
+                text,
+                re.IGNORECASE
+            )
+
+            pixel_context = re.search(
+                r'\bpixel\b',
+                text,
+                re.IGNORECASE
+            )
+
+            if google_phone_context is None and pixel_context is None:
+                brandlist = [
+                    b for b in brandlist
+                    if b != 'google'
+                ]
+
+        # NOTHING → only keep when referring to Nothing phones/devices
+        if 'nothing' in brandlist:
+            nothing_hardware = re.search(
+                r'\bnothing\s+(phone|smartphone|mobile|device)\b',
+                text,
+                re.IGNORECASE
+            )
+
+            if nothing_hardware is None:
+                brandlist = [
+                    b for b in brandlist
+                    if b != 'nothing'
+                ]
+
+        brandlist = _get_unique_brands(brandlist)
         brandlists.append(brandlist)
+
     return brandlists
 
 def _replace_hin_to_eng(text):

@@ -15,5 +15,6 @@ wandb/
 models/
 *.pkl
 *.pickle
+*.zip
 headline-output.csv
 sample_data/

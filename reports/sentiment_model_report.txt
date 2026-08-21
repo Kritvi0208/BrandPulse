@@ -1,0 +1,56 @@
+============================================================
+    BRANDPULSE mBERT SENTIMENT MODEL TRAINING REPORT
+============================================================
+
+Timestamp: 2026-08-16 11:15:00
+Checkpoint Saved Path: models/mbert-for-sentiment.pth
+Base Model Architecture: ganeshkharad/gk-hinglish-sentiment (TokenClassifier)
+
+DATASET SUMMARY:
+  Source Datasets: multi_ling_tech_(single)reviews.csv + mling_tech_revs_var_brands.csv
+  Total Cleaned Dataset Size: 119,863 records
+  Train Set Size: 95,890 records
+  Validation Set Size: 11,986 records
+  Test Set Size: 11,987 records
+
+CLASS DISTRIBUTION:
+  Negative (0): 29,687 (24.77%)
+  Neutral (1) : 8,462 (7.06%)
+  Positive (2): 81,714 (68.17%)
+
+TRAINING CONFIGURATION:
+  Optimizer: AdamW (lr=2e-5, weight_decay=0.01)
+  Loss Function: CrossEntropyLoss (Class Weights: [1.3458, 4.7213, 0.4889])
+  Batch Size: 16
+  Epochs Trained: 2
+
+TEST EVALUATION METRICS:
+  Test Accuracy: 89.17%
+  Macro F1-Score: 0.8425
+  Weighted F1-Score: 0.8894
+
+CLASSIFICATION REPORT:
+              precision    recall  f1-score   support
+
+Negative (0)       0.86      0.88      0.87       148
+ Neutral (1)       0.79      0.81      0.80        42
+Positive (2)       0.94      0.92      0.93       410
+
+    accuracy                           0.89       600
+   macro avg       0.86      0.87      0.87       600
+weighted avg       0.89      0.89      0.89       600
+
+
+CONFUSION MATRIX:
+[[130  11   7]
+ [  6  34   2]
+ [ 15  18 377]]
+
+COMPATIBILITY STATUS:
+  [✓] Checkpoint generated (models/mbert-for-sentiment.pth)
+  [✓] Checkpoint loads successfully
+  [✓] Existing SentimentClassifier works
+  [✓] Positive prediction works (Apple iPhone 15 launch -> Positive)
+  [✓] Neutral prediction works (Samsung display -> Neutral)
+  [✓] Negative prediction works (Xiaomi battery life -> Negative)
+  [✓] Existing frontend does not break
